@@ -1,0 +1,167 @@
+{
+  "version": 3,
+  "targets": {
+    "net8.0": {
+      "Widiny.Stock.Application/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "Widiny.Stock.Contracts": "1.0.0",
+          "Widiny.Stock.Domain": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/Widiny.Stock.Application.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Widiny.Stock.Application.dll": {}
+        }
+      },
+      "Widiny.Stock.Contracts/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "compile": {
+          "bin/placeholder/Widiny.Stock.Contracts.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Widiny.Stock.Contracts.dll": {}
+        }
+      },
+      "Widiny.Stock.Domain/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "compile": {
+          "bin/placeholder/Widiny.Stock.Domain.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Widiny.Stock.Domain.dll": {}
+        }
+      },
+      "Widiny.Stock.Infrastructure/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "Widiny.Stock.Application": "1.0.0",
+          "Widiny.Stock.Contracts": "1.0.0",
+          "Widiny.Stock.Domain": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/Widiny.Stock.Infrastructure.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Widiny.Stock.Infrastructure.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Widiny.Stock.Application/1.0.0": {
+      "type": "project",
+      "path": "../Widiny.Stock.Application/Widiny.Stock.Application.csproj",
+      "msbuildProject": "../Widiny.Stock.Application/Widiny.Stock.Application.csproj"
+    },
+    "Widiny.Stock.Contracts/1.0.0": {
+      "type": "project",
+      "path": "../Widiny.Stock.Contracts/Widiny.Stock.Contracts.csproj",
+      "msbuildProject": "../Widiny.Stock.Contracts/Widiny.Stock.Contracts.csproj"
+    },
+    "Widiny.Stock.Domain/1.0.0": {
+      "type": "project",
+      "path": "../Widiny.Stock.Domain/Widiny.Stock.Domain.csproj",
+      "msbuildProject": "../Widiny.Stock.Domain/Widiny.Stock.Domain.csproj"
+    },
+    "Widiny.Stock.Infrastructure/1.0.0": {
+      "type": "project",
+      "path": "../Widiny.Stock.Infrastructure/Widiny.Stock.Infrastructure.csproj",
+      "msbuildProject": "../Widiny.Stock.Infrastructure/Widiny.Stock.Infrastructure.csproj"
+    }
+  },
+  "projectFileDependencyGroups": {
+    "net8.0": [
+      "Widiny.Stock.Application >= 1.0.0",
+      "Widiny.Stock.Contracts >= 1.0.0",
+      "Widiny.Stock.Infrastructure >= 1.0.0"
+    ]
+  },
+  "packageFolders": {
+    "C:\\Users\\feelaware\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "D:\\Git\\Widiny.Stock\\Widiny.Stock.Web\\Widiny.Stock.Web.csproj",
+      "projectName": "Widiny.Stock.Web",
+      "projectPath": "D:\\Git\\Widiny.Stock\\Widiny.Stock.Web\\Widiny.Stock.Web.csproj",
+      "packagesPath": "C:\\Users\\feelaware\\.nuget\\packages\\",
+      "outputPath": "D:\\Git\\Widiny.Stock\\Widiny.Stock.Web\\obj\\",
+      "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
+      "configFilePaths": [
+        "C:\\Users\\feelaware\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+      ],
+      "originalTargetFrameworks": [
+        "net8.0"
+      ],
+      "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "projectReferences": {
+            "D:\\Git\\Widiny.Stock\\Widiny.Stock.Application\\Widiny.Stock.Application.csproj": {
+              "projectPath": "D:\\Git\\Widiny.Stock\\Widiny.Stock.Application\\Widiny.Stock.Application.csproj"
+            },
+            "D:\\Git\\Widiny.Stock\\Widiny.Stock.Contracts\\Widiny.Stock.Contracts.csproj": {
+              "projectPath": "D:\\Git\\Widiny.Stock\\Widiny.Stock.Contracts\\Widiny.Stock.Contracts.csproj"
+            },
+            "D:\\Git\\Widiny.Stock\\Widiny.Stock.Infrastructure\\Widiny.Stock.Infrastructure.csproj": {
+              "projectPath": "D:\\Git\\Widiny.Stock\\Widiny.Stock.Infrastructure\\Widiny.Stock.Infrastructure.csproj"
+            }
+          }
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      },
+      "restoreAuditProperties": {
+        "enableAudit": "true",
+        "auditLevel": "low",
+        "auditMode": "direct"
+      },
+      "SdkAnalysisLevel": "9.0.200"
+    },
+    "frameworks": {
+      "net8.0": {
+        "targetAlias": "net8.0",
+        "imports": [
+          "net461",
+          "net462",
+          "net47",
+          "net471",
+          "net472",
+          "net48",
+          "net481"
+        ],
+        "assetTargetFallback": true,
+        "warn": true,
+        "frameworkReferences": {
+          "Microsoft.AspNetCore.App": {
+            "privateAssets": "none"
+          },
+          "Microsoft.NETCore.App": {
+            "privateAssets": "all"
+          }
+        },
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.201/PortableRuntimeIdentifierGraph.json"
+      }
+    }
+  }
+}

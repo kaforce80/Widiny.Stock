@@ -1,0 +1,12 @@
+D:\Git\Widiny.Stock\Widiny.Stock.Contracts\bin\Debug\net8.0\Widiny.Stock.Contracts.deps.json
+D:\Git\Widiny.Stock\Widiny.Stock.Contracts\bin\Debug\net8.0\Widiny.Stock.Contracts.dll
+D:\Git\Widiny.Stock\Widiny.Stock.Contracts\bin\Debug\net8.0\Widiny.Stock.Contracts.pdb
+D:\Git\Widiny.Stock\Widiny.Stock.Contracts\obj\Debug\net8.0\Widiny.Stock.Contracts.GeneratedMSBuildEditorConfig.editorconfig
+D:\Git\Widiny.Stock\Widiny.Stock.Contracts\obj\Debug\net8.0\Widiny.Stock.Contracts.AssemblyInfoInputs.cache
+D:\Git\Widiny.Stock\Widiny.Stock.Contracts\obj\Debug\net8.0\Widiny.Stock.Contracts.AssemblyInfo.cs
+D:\Git\Widiny.Stock\Widiny.Stock.Contracts\obj\Debug\net8.0\Widiny.Stock.Contracts.csproj.CoreCompileInputs.cache
+D:\Git\Widiny.Stock\Widiny.Stock.Contracts\obj\Debug\net8.0\Widiny.Stock.Contracts.sourcelink.json
+D:\Git\Widiny.Stock\Widiny.Stock.Contracts\obj\Debug\net8.0\Widiny.Stock.Contracts.dll
+D:\Git\Widiny.Stock\Widiny.Stock.Contracts\obj\Debug\net8.0\refint\Widiny.Stock.Contracts.dll
+D:\Git\Widiny.Stock\Widiny.Stock.Contracts\obj\Debug\net8.0\Widiny.Stock.Contracts.pdb
+D:\Git\Widiny.Stock\Widiny.Stock.Contracts\obj\Debug\net8.0\ref\Widiny.Stock.Contracts.dll

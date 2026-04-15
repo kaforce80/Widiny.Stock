@@ -1,0 +1,125 @@
+{
+  "Version": 1,
+  "Hash": "ECdOlnIigba0CPZKzAyjt7sjGQKhWHy090htiQQ2bRQ=",
+  "Source": "Widiny.Stock.Web",
+  "BasePath": "_content/Widiny.Stock.Web",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "Widiny.Stock.Web\\wwwroot",
+      "Source": "Widiny.Stock.Web",
+      "ContentRoot": "D:\\Git\\Widiny.Stock\\Widiny.Stock.Web\\wwwroot\\",
+      "BasePath": "_content/Widiny.Stock.Web",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "D:\\Git\\Widiny.Stock\\Widiny.Stock.Web\\wwwroot\\css\\site.css",
+      "SourceId": "Widiny.Stock.Web",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\Git\\Widiny.Stock\\Widiny.Stock.Web\\wwwroot\\",
+      "BasePath": "_content/Widiny.Stock.Web",
+      "RelativePath": "css/site#[.{fingerprint}]?.css",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "7mfn9ivvpm",
+      "Integrity": "z480LM9lulFFZZKItuwtfdZiGK84dMeg9sog8s//kQI=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\css\\site.css"
+    }
+  ],
+  "Endpoints": [
+    {
+      "Route": "css/site.7mfn9ivvpm.css",
+      "AssetFile": "D:\\Git\\Widiny.Stock\\Widiny.Stock.Web\\wwwroot\\css\\site.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1211"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"z480LM9lulFFZZKItuwtfdZiGK84dMeg9sog8s//kQI=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 15 Apr 2026 08:33:49 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "7mfn9ivvpm"
+        },
+        {
+          "Name": "label",
+          "Value": "css/site.css"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-z480LM9lulFFZZKItuwtfdZiGK84dMeg9sog8s//kQI="
+        }
+      ]
+    },
+    {
+      "Route": "css/site.css",
+      "AssetFile": "D:\\Git\\Widiny.Stock\\Widiny.Stock.Web\\wwwroot\\css\\site.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1211"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"z480LM9lulFFZZKItuwtfdZiGK84dMeg9sog8s//kQI=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 15 Apr 2026 08:33:49 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-z480LM9lulFFZZKItuwtfdZiGK84dMeg9sog8s//kQI="
+        }
+      ]
+    }
+  ]
+}

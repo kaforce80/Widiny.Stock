@@ -1,0 +1,12 @@
+D:\Git\Widiny.Stock\Widiny.Stock.Domain\bin\Debug\net8.0\Widiny.Stock.Domain.deps.json
+D:\Git\Widiny.Stock\Widiny.Stock.Domain\bin\Debug\net8.0\Widiny.Stock.Domain.dll
+D:\Git\Widiny.Stock\Widiny.Stock.Domain\bin\Debug\net8.0\Widiny.Stock.Domain.pdb
+D:\Git\Widiny.Stock\Widiny.Stock.Domain\obj\Debug\net8.0\Widiny.Stock.Domain.GeneratedMSBuildEditorConfig.editorconfig
+D:\Git\Widiny.Stock\Widiny.Stock.Domain\obj\Debug\net8.0\Widiny.Stock.Domain.AssemblyInfoInputs.cache
+D:\Git\Widiny.Stock\Widiny.Stock.Domain\obj\Debug\net8.0\Widiny.Stock.Domain.AssemblyInfo.cs
+D:\Git\Widiny.Stock\Widiny.Stock.Domain\obj\Debug\net8.0\Widiny.Stock.Domain.csproj.CoreCompileInputs.cache
+D:\Git\Widiny.Stock\Widiny.Stock.Domain\obj\Debug\net8.0\Widiny.Stock.Domain.sourcelink.json
+D:\Git\Widiny.Stock\Widiny.Stock.Domain\obj\Debug\net8.0\Widiny.Stock.Domain.dll
+D:\Git\Widiny.Stock\Widiny.Stock.Domain\obj\Debug\net8.0\refint\Widiny.Stock.Domain.dll
+D:\Git\Widiny.Stock\Widiny.Stock.Domain\obj\Debug\net8.0\Widiny.Stock.Domain.pdb
+D:\Git\Widiny.Stock\Widiny.Stock.Domain\obj\Debug\net8.0\ref\Widiny.Stock.Domain.dll

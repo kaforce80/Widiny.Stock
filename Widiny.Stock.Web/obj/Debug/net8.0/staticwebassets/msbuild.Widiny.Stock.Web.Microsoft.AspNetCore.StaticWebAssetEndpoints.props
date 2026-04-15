@@ -1,0 +1,16 @@
+﻿<Project>
+  <ItemGroup>
+    <StaticWebAssetEndpoint Include="_content/Widiny.Stock.Web/css/site.7mfn9ivvpm.css">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\site.css'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"7mfn9ivvpm"},{"Name":"integrity","Value":"sha256-z480LM9lulFFZZKItuwtfdZiGK84dMeg9sog8s//kQI="},{"Name":"label","Value":"_content/Widiny.Stock.Web/css/site.css"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"1211"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022z480LM9lulFFZZKItuwtfdZiGK84dMeg9sog8s//kQI=\u0022"},{"Name":"Last-Modified","Value":"Wed, 15 Apr 2026 08:33:49 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/Widiny.Stock.Web/css/site.css">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\site.css'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-z480LM9lulFFZZKItuwtfdZiGK84dMeg9sog8s//kQI="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"1211"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022z480LM9lulFFZZKItuwtfdZiGK84dMeg9sog8s//kQI=\u0022"},{"Name":"Last-Modified","Value":"Wed, 15 Apr 2026 08:33:49 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+  </ItemGroup>
+</Project>
