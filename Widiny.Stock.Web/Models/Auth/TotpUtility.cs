@@ -28,6 +28,12 @@ public static class TotpUtility
         return false;
     }
 
+    public static string GenerateSecret(int numBytes = 20)
+    {
+        var secretBytes = RandomNumberGenerator.GetBytes(numBytes);
+        return EncodeBase32(secretBytes);
+    }
+
     private static string GenerateCode(byte[] key, long timestep, int digits)
     {
         Span<byte> counter = stackalloc byte[8];
@@ -48,6 +54,34 @@ public static class TotpUtility
 
         var otp = binaryCode % (int)Math.Pow(10, digits);
         return otp.ToString(new string('0', digits));
+    }
+
+    private static string EncodeBase32(byte[] data)
+    {
+        const string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+
+        var output = new StringBuilder();
+        var value = 0;
+        var bits = 0;
+
+        foreach (var b in data)
+        {
+            value = (value << 8) | b;
+            bits += 8;
+
+            while (bits >= 5)
+            {
+                output.Append(alphabet[(value >> (bits - 5)) & 0x1F]);
+                bits -= 5;
+            }
+        }
+
+        if (bits > 0)
+        {
+            output.Append(alphabet[(value << (5 - bits)) & 0x1F]);
+        }
+
+        return output.ToString();
     }
 
     private static byte[] DecodeBase32(string input)

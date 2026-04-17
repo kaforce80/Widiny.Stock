@@ -137,3 +137,29 @@ body {
     width: 100%;
     background: #334155;
 }
+
+
+.register-wrap {
+    max-width: 520px;
+}
+
+.success {
+    background: #ecfdf3;
+    color: #166534;
+    border: 1px solid #86efac;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    font-size: 0.9rem;
+}
+
+.auth-link {
+    margin-top: 16px;
+    font-size: 0.9rem;
+}
+
+.auth-link a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+}

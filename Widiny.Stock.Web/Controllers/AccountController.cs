@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using System.Security.Claims;
 
 namespace Widiny.Stock.Web.Controllers;
@@ -11,12 +10,43 @@ namespace Widiny.Stock.Web.Controllers;
 [AllowAnonymous]
 public class AccountController : Controller
 {
-    private const string PendingAdminEmailSessionKey = "PendingAdminEmail";
-    private readonly AdminAuthOptions _adminAuthOptions;
+    private const string PendingAdminLoginIdSessionKey = "PendingAdminLoginId";
+    private readonly AdminAccountStore _adminAccountStore;
 
-    public AccountController(IOptions<AdminAuthOptions> adminAuthOptions)
+    public AccountController(AdminAccountStore adminAccountStore)
     {
-        _adminAuthOptions = adminAuthOptions.Value;
+        _adminAccountStore = adminAccountStore;
+    }
+
+    [HttpGet]
+    public IActionResult Register()
+    {
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            return RedirectToAction("Dashboard", "Home");
+        }
+
+        return View(new AdminRegisterViewModel());
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Register(AdminRegisterViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        var isRegistered = _adminAccountStore.TryRegister(model);
+        if (!isRegistered)
+        {
+            ModelState.AddModelError(string.Empty, "이미 사용 중인 Login ID 입니다.");
+            return View(model);
+        }
+
+        TempData["RegisterSuccess"] = "관리자 등록이 완료되었습니다. Google Authenticator를 설정한 뒤 로그인하세요.";
+        return RedirectToAction(nameof(Login));
     }
 
     [HttpGet]
@@ -39,14 +69,13 @@ public class AccountController : Controller
             return View(model);
         }
 
-        if (!string.Equals(model.Email, _adminAuthOptions.Email, StringComparison.OrdinalIgnoreCase) ||
-            !string.Equals(model.Password, _adminAuthOptions.Password, StringComparison.Ordinal))
+        if (!_adminAccountStore.VerifyCredentials(model.LoginId, model.Password))
         {
             ModelState.AddModelError(string.Empty, "로그인 정보가 올바르지 않습니다.");
             return View(model);
         }
 
-        HttpContext.Session.SetString(PendingAdminEmailSessionKey, model.Email);
+        HttpContext.Session.SetString(PendingAdminLoginIdSessionKey, model.LoginId);
 
         return RedirectToAction(nameof(VerifyAuthenticator), new { model.ReturnUrl });
     }
@@ -54,7 +83,7 @@ public class AccountController : Controller
     [HttpGet]
     public IActionResult VerifyAuthenticator(string? returnUrl = null)
     {
-        if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString(PendingAdminEmailSessionKey)))
+        if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString(PendingAdminLoginIdSessionKey)))
         {
             return RedirectToAction(nameof(Login), new { returnUrl });
         }
@@ -66,9 +95,9 @@ public class AccountController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> VerifyAuthenticator(VerifyAuthenticatorViewModel model)
     {
-        var pendingEmail = HttpContext.Session.GetString(PendingAdminEmailSessionKey);
+        var pendingLoginId = HttpContext.Session.GetString(PendingAdminLoginIdSessionKey);
 
-        if (string.IsNullOrWhiteSpace(pendingEmail))
+        if (string.IsNullOrWhiteSpace(pendingLoginId))
         {
             return RedirectToAction(nameof(Login), new { model.ReturnUrl });
         }
@@ -78,17 +107,19 @@ public class AccountController : Controller
             return View(model);
         }
 
-        var isTotpValid = VerifyTotp(model.Code);
+        var isTotpValid = VerifyTotp(pendingLoginId, model.Code);
         if (!isTotpValid)
         {
             ModelState.AddModelError(string.Empty, "Google Authenticator 코드가 유효하지 않습니다.");
             return View(model);
         }
 
+        var displayName = _adminAccountStore.GetDisplayName(pendingLoginId);
         var claims = new List<Claim>
         {
-            new(ClaimTypes.NameIdentifier, pendingEmail),
-            new(ClaimTypes.Email, pendingEmail),
+            new(ClaimTypes.NameIdentifier, pendingLoginId),
+            new(ClaimTypes.Email, pendingLoginId),
+            new(ClaimTypes.Name, displayName),
             new(ClaimTypes.Role, "Admin")
         };
 
@@ -96,7 +127,7 @@ public class AccountController : Controller
         var principal = new ClaimsPrincipal(identity);
 
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-        HttpContext.Session.Remove(PendingAdminEmailSessionKey);
+        HttpContext.Session.Remove(PendingAdminLoginIdSessionKey);
 
         if (!string.IsNullOrWhiteSpace(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
         {
@@ -115,16 +146,17 @@ public class AccountController : Controller
         return RedirectToAction(nameof(Login));
     }
 
-    private bool VerifyTotp(string code)
+    private bool VerifyTotp(string loginId, string code)
     {
-        if (string.IsNullOrWhiteSpace(_adminAuthOptions.TotpSecretBase32))
+        var secret = _adminAccountStore.GetTotpSecretByLoginId(loginId);
+        if (string.IsNullOrWhiteSpace(secret))
         {
             return false;
         }
 
         try
         {
-            return TotpUtility.VerifyCode(_adminAuthOptions.TotpSecretBase32, code);
+            return TotpUtility.VerifyCode(secret, code);
         }
         catch (FormatException)
         {
