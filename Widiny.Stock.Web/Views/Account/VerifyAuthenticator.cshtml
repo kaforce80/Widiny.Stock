@@ -5,7 +5,10 @@
 
 <section class="auth-wrap">
     <div class="auth-card panel">
-        <h2>Google Authenticator 인증</h2>
+        <h2 class="auth-title-with-icon">
+            <img src="~/images/widiny-auth-icon.svg" alt="인증 아이콘" class="auth-title-icon" />
+            <span>Google Authenticator 인증</span>
+        </h2>
         <p>앱에 표시되는 6자리 코드를 입력하세요.</p>
 
         <form asp-action="VerifyAuthenticator" method="post" class="auth-form">

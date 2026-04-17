@@ -1,10 +1,17 @@
+using Widiny.Stock.Web.Data;
 using Widiny.Stock.Web.Models.Auth;
+using Widiny.Stock.Web.Services.Auth;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<AdminAuthOptions>(builder.Configuration.GetSection(AdminAuthOptions.SectionName));
-builder.Services.AddSingleton<AdminAccountStore>();
+
+builder.Services.AddDbContext<StockDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("Widiny.StockDB") ?? "Data Source=Widiny.StockDB.db"));
+
+builder.Services.AddScoped<AdminAccountService>();
 
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -28,6 +35,15 @@ builder.Services.AddSession(options =>
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<StockDbContext>();
+    dbContext.Database.EnsureCreated();
+
+    var adminService = scope.ServiceProvider.GetRequiredService<AdminAccountService>();
+    await adminService.EnsureSeedAdminAsync();
+}
 
 if (!app.Environment.IsDevelopment())
 {

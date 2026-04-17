@@ -1,4 +1,5 @@
 using Widiny.Stock.Web.Models.Auth;
+using Widiny.Stock.Web.Services.Auth;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -8,15 +9,9 @@ using System.Security.Claims;
 namespace Widiny.Stock.Web.Controllers;
 
 [AllowAnonymous]
-public class AccountController : Controller
+public class AccountController(AdminAccountService adminAccountService) : Controller
 {
     private const string PendingAdminLoginIdSessionKey = "PendingAdminLoginId";
-    private readonly AdminAccountStore _adminAccountStore;
-
-    public AccountController(AdminAccountStore adminAccountStore)
-    {
-        _adminAccountStore = adminAccountStore;
-    }
 
     [HttpGet]
     public IActionResult Register()
@@ -31,22 +26,49 @@ public class AccountController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Register(AdminRegisterViewModel model)
+    public async Task<IActionResult> Register(AdminRegisterViewModel model)
     {
         if (!ModelState.IsValid)
         {
             return View(model);
         }
 
-        var isRegistered = _adminAccountStore.TryRegister(model);
+        var isRegistered = await adminAccountService.TryRegisterAsync(model);
         if (!isRegistered)
         {
             ModelState.AddModelError(string.Empty, "이미 사용 중인 Login ID 입니다.");
             return View(model);
         }
 
-        TempData["RegisterSuccess"] = "관리자 등록이 완료되었습니다. Google Authenticator를 설정한 뒤 로그인하세요.";
-        return RedirectToAction(nameof(Login));
+        return RedirectToAction(nameof(SetupAuthenticator), new { loginId = model.LoginId });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> SetupAuthenticator(string loginId)
+    {
+        if (string.IsNullOrWhiteSpace(loginId))
+        {
+            return RedirectToAction(nameof(Login));
+        }
+
+        var secretKey = await adminAccountService.GetAuthenticatorSetupKeyAsync(loginId);
+        if (string.IsNullOrWhiteSpace(secretKey))
+        {
+            return RedirectToAction(nameof(Login));
+        }
+
+        var issuer = Uri.EscapeDataString("Widiny Stock");
+        var accountName = Uri.EscapeDataString(loginId);
+        var otpAuthUri = $"otpauth://totp/{issuer}:{accountName}?secret={secretKey}&issuer={issuer}&digits=6";
+
+        var viewModel = new AuthenticatorSetupViewModel
+        {
+            LoginId = loginId,
+            SecretKey = secretKey,
+            OtpAuthUri = otpAuthUri
+        };
+
+        return View(viewModel);
     }
 
     [HttpGet]
@@ -62,14 +84,14 @@ public class AccountController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Login(AdminLoginViewModel model)
+    public async Task<IActionResult> Login(AdminLoginViewModel model)
     {
         if (!ModelState.IsValid)
         {
             return View(model);
         }
 
-        if (!_adminAccountStore.VerifyCredentials(model.LoginId, model.Password))
+        if (!await adminAccountService.VerifyCredentialsAsync(model.LoginId, model.Password))
         {
             ModelState.AddModelError(string.Empty, "로그인 정보가 올바르지 않습니다.");
             return View(model);
@@ -107,14 +129,14 @@ public class AccountController : Controller
             return View(model);
         }
 
-        var isTotpValid = VerifyTotp(pendingLoginId, model.Code);
+        var isTotpValid = await VerifyTotpAsync(pendingLoginId, model.Code);
         if (!isTotpValid)
         {
             ModelState.AddModelError(string.Empty, "Google Authenticator 코드가 유효하지 않습니다.");
             return View(model);
         }
 
-        var displayName = _adminAccountStore.GetDisplayName(pendingLoginId);
+        var displayName = await adminAccountService.GetDisplayNameAsync(pendingLoginId);
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, pendingLoginId),
@@ -146,9 +168,9 @@ public class AccountController : Controller
         return RedirectToAction(nameof(Login));
     }
 
-    private bool VerifyTotp(string loginId, string code)
+    private async Task<bool> VerifyTotpAsync(string loginId, string code)
     {
-        var secret = _adminAccountStore.GetTotpSecretByLoginId(loginId);
+        var secret = await adminAccountService.GetTotpSecretByLoginIdAsync(loginId);
         if (string.IsNullOrWhiteSpace(secret))
         {
             return false;
