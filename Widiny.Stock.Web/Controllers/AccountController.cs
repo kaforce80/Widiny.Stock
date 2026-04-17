@@ -61,11 +61,14 @@ public class AccountController(AdminAccountService adminAccountService) : Contro
         var accountName = Uri.EscapeDataString(loginId);
         var otpAuthUri = $"otpauth://totp/{issuer}:{accountName}?secret={secretKey}&issuer={issuer}&digits=6";
 
+        var qrCodeImageUrl = $"https://api.qrserver.com/v1/create-qr-code/?size=240x240&data={Uri.EscapeDataString(otpAuthUri)}";
+
         var viewModel = new AuthenticatorSetupViewModel
         {
             LoginId = loginId,
             SecretKey = secretKey,
-            OtpAuthUri = otpAuthUri
+            OtpAuthUri = otpAuthUri,
+            QrCodeImageUrl = qrCodeImageUrl
         };
 
         return View(viewModel);

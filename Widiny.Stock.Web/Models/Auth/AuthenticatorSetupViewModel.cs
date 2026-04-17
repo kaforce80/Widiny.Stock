@@ -7,4 +7,6 @@ public class AuthenticatorSetupViewModel
     public string SecretKey { get; set; } = string.Empty;
 
     public string OtpAuthUri { get; set; } = string.Empty;
+
+    public string QrCodeImageUrl { get; set; } = string.Empty;
 }
