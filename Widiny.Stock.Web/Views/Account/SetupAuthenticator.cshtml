@@ -1,0 +1,24 @@
+@model Widiny.Stock.Web.Models.Auth.AuthenticatorSetupViewModel
+@{
+    ViewData["Title"] = "Google Authenticator 등록";
+}
+
+<section class="auth-wrap register-wrap">
+    <div class="auth-card panel">
+        <h2 class="auth-title-with-icon">
+            <img src="~/images/widiny-auth-icon.svg" alt="인증 아이콘" class="auth-title-icon" />
+            <span>Google Authenticator 등록</span>
+        </h2>
+        <p><strong>@Model.LoginId</strong> 계정에 2차 인증을 설정하세요.</p>
+
+        <div class="setup-block">
+            <p>1) Google Authenticator 앱에서 <strong>코드 수동 입력</strong>을 선택합니다.</p>
+            <p>2) 아래 비밀 키를 입력합니다.</p>
+            <code class="secret-key">@Model.SecretKey</code>
+            <p>3) 또는 otpauth URI를 이용해 QR 변환 도구로 등록할 수 있습니다.</p>
+            <textarea class="uri-box" readonly>@Model.OtpAuthUri</textarea>
+        </div>
+
+        <p class="auth-link">등록이 끝났다면 <a asp-action="Login">로그인으로 이동</a></p>
+    </div>
+</section>
