@@ -3,25 +3,37 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Widiny.Stock</title>
+    <title>@ViewData["Title"] - Widiny Stock</title>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
-    <div class="app-shell">
-        <aside class="sidebar">
-            <h1 class="brand">Widiny.Stock</h1>
-            <nav class="nav-menu">
-                <a asp-controller="Home" asp-action="Dashboard">대시보드</a>
-                <a asp-controller="Home" asp-action="Stocks">주식 목록</a>
-                <a asp-controller="Home" asp-action="Logs">로그</a>
-                <a asp-controller="Home" asp-action="Api">API</a>
-                <a asp-controller="Home" asp-action="Board">보드</a>
-                <a asp-controller="Home" asp-action="Settings">설정</a>
-            </nav>
-        </aside>
-        <main class="content">
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <div class="app-shell">
+            <aside class="sidebar">
+                <h1 class="brand">Widiny Stock</h1>
+                <nav class="nav-menu">
+                    <a asp-controller="Home" asp-action="Dashboard">대시보드</a>
+                    <a asp-controller="Home" asp-action="Stocks">주식 목록</a>
+                    <a asp-controller="Home" asp-action="Logs">로그</a>
+                    <a asp-controller="Home" asp-action="Api">API</a>
+                    <a asp-controller="Home" asp-action="Board">보드</a>
+                    <a asp-controller="Home" asp-action="Settings">설정</a>
+                </nav>
+                <form asp-controller="Account" asp-action="Logout" method="post" class="logout-form">
+                    <button type="submit" class="logout-btn">로그아웃</button>
+                </form>
+            </aside>
+            <main class="content">
+                @RenderBody()
+            </main>
+        </div>
+    }
+    else
+    {
+        <main class="guest-content">
             @RenderBody()
         </main>
-    </div>
+    }
 </body>
 </html>

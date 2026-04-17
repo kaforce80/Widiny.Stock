@@ -1,7 +1,9 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Widiny.Stock.Web.Controllers;
 
+[Authorize(Roles = "Admin")]
 public class HomeController : Controller
 {
     public IActionResult Dashboard() => View();
