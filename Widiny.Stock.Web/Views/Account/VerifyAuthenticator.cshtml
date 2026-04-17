@@ -1,0 +1,22 @@
+@model Widiny.Stock.Web.Models.Auth.VerifyAuthenticatorViewModel
+@{
+    ViewData["Title"] = "2차 인증";
+}
+
+<section class="auth-wrap">
+    <div class="auth-card panel">
+        <h2>Google Authenticator 인증</h2>
+        <p>앱에 표시되는 6자리 코드를 입력하세요.</p>
+
+        <form asp-action="VerifyAuthenticator" method="post" class="auth-form">
+            <input type="hidden" asp-for="ReturnUrl" />
+            <div asp-validation-summary="ModelOnly" class="validation"></div>
+
+            <label asp-for="Code">인증 코드</label>
+            <input asp-for="Code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" />
+            <span asp-validation-for="Code" class="validation"></span>
+
+            <button type="submit">로그인</button>
+        </form>
+    </div>
+</section>
