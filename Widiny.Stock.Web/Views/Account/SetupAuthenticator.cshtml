@@ -1,0 +1,41 @@
+@model Widiny.Stock.Web.Models.Auth.AuthenticatorSetupViewModel
+@{
+    ViewData["Title"] = "Google Authenticator 등록";
+}
+
+<section class="auth-wrap register-wrap">
+    <div class="auth-card panel">
+        <h2 class="auth-title-with-icon">
+            <img src="~/images/widiny-auth-icon.svg" alt="인증 아이콘" class="auth-title-icon" />
+            <span>Google Authenticator 등록</span>
+        </h2>
+        <p><strong>@Model.LoginId</strong> 계정에 2차 인증을 설정하세요.</p>
+
+        <div class="setup-block">
+            <p><strong>1)</strong> Google Authenticator 앱에서 <strong>QR 코드 스캔</strong>을 선택하세요.</p>
+            <div class="qr-wrap">
+                <img src="@Model.QrCodeImageUrl" alt="Authenticator QR" class="qr-image" />
+            </div>
+
+            <p><strong>2)</strong> QR 스캔이 어려운 경우, 아래 비밀키를 수동 입력하세요.</p>
+            <div class="copy-row">
+                <code class="secret-key" id="secretKeyText">@Model.SecretKey</code>
+                <button type="button" class="copy-btn" onclick="copyText('secretKeyText')">키 복사</button>
+            </div>
+
+            <p><strong>3)</strong> 고급 설정용 otpauth URI</p>
+            <textarea class="uri-box" id="otpauthText" readonly>@Model.OtpAuthUri</textarea>
+            <button type="button" class="copy-btn" onclick="copyText('otpauthText')">URI 복사</button>
+        </div>
+
+        <p class="auth-link">등록이 끝났다면 <a asp-action="Login">로그인으로 이동</a></p>
+    </div>
+</section>
+
+<script>
+    async function copyText(elementId) {
+        const element = document.getElementById(elementId);
+        const value = element.value || element.textContent;
+        await navigator.clipboard.writeText(value.trim());
+    }
+</script>

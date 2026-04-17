@@ -1,0 +1,28 @@
+@model Widiny.Stock.Web.Models.Auth.AdminLoginViewModel
+@{
+    ViewData["Title"] = "관리자 로그인";
+}
+
+<section class="auth-wrap">
+    <div class="auth-card panel">
+        <h2>관리자 로그인</h2>
+        <p>Login ID/비밀번호 입력 후 Google Authenticator 인증을 진행합니다.</p>
+
+        <form asp-action="Login" method="post" class="auth-form">
+            <input type="hidden" asp-for="ReturnUrl" />
+            <div asp-validation-summary="ModelOnly" class="validation"></div>
+
+            <label asp-for="LoginId">Login ID (Email)</label>
+            <input asp-for="LoginId" type="email" autocomplete="username" />
+            <span asp-validation-for="LoginId" class="validation"></span>
+
+            <label asp-for="Password">비밀번호</label>
+            <input asp-for="Password" type="password" autocomplete="current-password" />
+            <span asp-validation-for="Password" class="validation"></span>
+
+            <button type="submit">다음</button>
+        </form>
+
+        <p class="auth-link">관리자 계정이 없나요? <a asp-action="Register">관리자 등록</a></p>
+    </div>
+</section>
