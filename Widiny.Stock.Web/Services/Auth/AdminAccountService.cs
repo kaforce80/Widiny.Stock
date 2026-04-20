@@ -299,6 +299,63 @@ public class AdminAccountService(
         return $"{admin.FirstName} {admin.LastName}".Trim();
     }
 
+    public async Task AddLoginHistoryAsync(string loginId, string userName, string browser, string ipAddress)
+    {
+        dbContext.LoginHistories.Add(new LoginHistoryEntity
+        {
+            LoginId = loginId,
+            UserName = userName,
+            LoginDateUtc = DateTime.UtcNow,
+            Browser = browser,
+            IpAddress = ipAddress,
+            CreateDate = DateTime.UtcNow,
+            ModifyDate = DateTime.UtcNow
+        });
+
+        await dbContext.SaveChangesAsync();
+    }
+
+    public async Task<List<LoginHistoryEntity>> SearchLoginHistoryAsync(
+        DateTime fromDateUtc,
+        DateTime toDateUtc,
+        string? loginId,
+        string? userName,
+        string? browser,
+        string? ipAddress)
+    {
+        var from = fromDateUtc.Date;
+        var toExclusive = toDateUtc.Date.AddDays(1);
+
+        var query = dbContext.LoginHistories
+            .AsNoTracking()
+            .Where(x => x.LoginDateUtc >= from && x.LoginDateUtc < toExclusive);
+
+        if (!string.IsNullOrWhiteSpace(loginId))
+        {
+            query = query.Where(x => x.LoginId.Contains(loginId));
+        }
+
+        if (!string.IsNullOrWhiteSpace(userName))
+        {
+            query = query.Where(x => x.UserName.Contains(userName));
+        }
+
+        if (!string.IsNullOrWhiteSpace(browser))
+        {
+            query = query.Where(x => x.Browser.Contains(browser));
+        }
+
+        if (!string.IsNullOrWhiteSpace(ipAddress))
+        {
+            query = query.Where(x => x.IpAddress.Contains(ipAddress));
+        }
+
+        return await query
+            .OrderByDescending(x => x.LoginDateUtc)
+            .Take(500)
+            .ToListAsync();
+    }
+
     public async Task AddAuditLogAsync(string? loginId, string eventType, bool isSuccess, string? detail, string? ipAddress)
     {
         dbContext.AuthAuditLogs.Add(new AuthAuditLogEntity

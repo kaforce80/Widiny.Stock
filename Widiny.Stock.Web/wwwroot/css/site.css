@@ -287,3 +287,69 @@ body {
     margin: 10px 0 0;
     padding-left: 18px;
 }
+
+
+.top-bar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 14px;
+}
+
+.welcome-text {
+    background: #e2e8f0;
+    color: #0f172a;
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.warning {
+    background: #fff7ed;
+    color: #9a3412;
+    border: 1px solid #fdba74;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    font-size: 0.9rem;
+}
+
+.history-panel {
+    overflow-x: auto;
+}
+
+.history-filter {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 8px;
+    margin-bottom: 14px;
+    align-items: end;
+}
+
+.history-filter input {
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 8px 10px;
+}
+
+.history-filter button {
+    border: 0;
+    border-radius: 8px;
+    background: #1f3a8a;
+    color: white;
+    padding: 10px 12px;
+    cursor: pointer;
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.history-table th,
+.history-table td {
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+    padding: 10px 8px;
+}

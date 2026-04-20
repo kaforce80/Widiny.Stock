@@ -8,6 +8,7 @@ public class StockDbContext(DbContextOptions<StockDbContext> options) : DbContex
     public DbSet<AdminEntity> Admins => Set<AdminEntity>();
     public DbSet<AdminRecoveryCodeEntity> AdminRecoveryCodes => Set<AdminRecoveryCodeEntity>();
     public DbSet<AuthAuditLogEntity> AuthAuditLogs => Set<AuthAuditLogEntity>();
+    public DbSet<LoginHistoryEntity> LoginHistories => Set<LoginHistoryEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -26,9 +27,14 @@ public class StockDbContext(DbContextOptions<StockDbContext> options) : DbContex
         modelBuilder.Entity<AdminRecoveryCodeEntity>()
             .HasIndex(x => new { x.AdminId, x.UsedDateUtc });
 
+
+        modelBuilder.Entity<LoginHistoryEntity>()
+            .HasIndex(x => x.LoginDateUtc);
+
         SetAuditDefaults<AdminEntity>(modelBuilder);
         SetAuditDefaults<AdminRecoveryCodeEntity>(modelBuilder);
         SetAuditDefaults<AuthAuditLogEntity>(modelBuilder);
+        SetAuditDefaults<LoginHistoryEntity>(modelBuilder);
     }
 
     private static void SetAuditDefaults<T>(ModelBuilder modelBuilder) where T : AuditableEntity

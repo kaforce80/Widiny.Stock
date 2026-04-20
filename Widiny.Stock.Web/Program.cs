@@ -5,15 +5,20 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<AdminAuthOptions>(builder.Configuration.GetSection(AdminAuthOptions.SectionName));
+builder.Services.Configure<AuthSessionOptions>(builder.Configuration.GetSection(AuthSessionOptions.SectionName));
 
 builder.Services.AddDbContext<StockDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("Widiny.StockDB") ?? "Data Source=Widiny.StockDB.db"));
 
 builder.Services.AddScoped<AdminAccountService>();
+
+var sessionOptions = builder.Configuration.GetSection(AuthSessionOptions.SectionName).Get<AuthSessionOptions>() ?? new AuthSessionOptions();
+var autoLogoutMinutes = Math.Max(1, sessionOptions.AutoLogoutMinutes);
 
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -22,11 +27,28 @@ builder.Services
         options.LoginPath = "/Account/Login";
         options.LogoutPath = "/Account/Logout";
         options.AccessDeniedPath = "/Account/Login";
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(autoLogoutMinutes);
         options.SlidingExpiration = true;
         options.Cookie.HttpOnly = true;
         options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
         options.Cookie.SameSite = SameSiteMode.Strict;
+        options.Events = new CookieAuthenticationEvents
+        {
+            OnRedirectToLogin = context =>
+            {
+                if (context.Request.Path.StartsWithSegments("/Account/Login"))
+                {
+                    context.Response.Redirect(context.RedirectUri);
+                    return Task.CompletedTask;
+                }
+
+                var reason = Uri.EscapeDataString($"{autoLogoutMinutes}분동안 반응이 없어 로그아웃을 했습니다.");
+                var redirectUri = context.RedirectUri;
+                redirectUri += redirectUri.Contains('?') ? $"&reason={reason}" : $"?reason={reason}";
+                context.Response.Redirect(redirectUri);
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddAuthorization();
@@ -36,7 +58,7 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
     options.Cookie.SameSite = SameSiteMode.Strict;
-    options.IdleTimeout = TimeSpan.FromMinutes(10);
+    options.IdleTimeout = TimeSpan.FromMinutes(autoLogoutMinutes);
 });
 
 builder.Services.AddControllersWithViews(options =>

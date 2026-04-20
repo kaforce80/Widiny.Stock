@@ -21,12 +21,16 @@
                     <a asp-controller="Home" asp-action="Board">보드</a>
                     <a asp-controller="Home" asp-action="Settings">설정</a>
                     <a asp-controller="Account" asp-action="Security">보안</a>
+                    <a asp-controller="Account" asp-action="LoginHistory">로그인 기록</a>
                 </nav>
                 <form asp-controller="Account" asp-action="Logout" method="post" class="logout-form">
                     <button type="submit" class="logout-btn">로그아웃</button>
                 </form>
             </aside>
             <main class="content">
+                <header class="top-bar">
+                    <div class="welcome-text">Welcome to @(User.Identity?.Name ?? string.Empty)</div>
+                </header>
                 @RenderBody()
             </main>
         </div>

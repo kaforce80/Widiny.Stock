@@ -1,0 +1,63 @@
+@model Widiny.Stock.Web.Models.Auth.LoginHistorySearchViewModel
+@{
+    ViewData["Title"] = "로그인 기록";
+}
+
+<section class="panel history-panel">
+    <h2>로그인 기록 검색</h2>
+
+    <form asp-action="LoginHistory" method="get" class="history-filter">
+        <label asp-for="FromDate">시작일</label>
+        <input asp-for="FromDate" type="date" />
+
+        <label asp-for="ToDate">종료일</label>
+        <input asp-for="ToDate" type="date" />
+
+        <label asp-for="LoginId">사용자 아이디</label>
+        <input asp-for="LoginId" />
+
+        <label asp-for="UserName">이름</label>
+        <input asp-for="UserName" />
+
+        <label asp-for="Browser">브라우저</label>
+        <input asp-for="Browser" />
+
+        <label asp-for="IpAddress">IP</label>
+        <input asp-for="IpAddress" />
+
+        <button type="submit">검색</button>
+    </form>
+
+    <div asp-validation-summary="ModelOnly" class="validation"></div>
+
+    <table class="history-table">
+        <thead>
+            <tr>
+                <th>로그인 일시(UTC)</th>
+                <th>사용자 아이디</th>
+                <th>이름</th>
+                <th>브라우저</th>
+                <th>IP</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Results.Any())
+            {
+                <tr><td colspan="5">조회 결과가 없습니다.</td></tr>
+            }
+            else
+            {
+                @foreach (var row in Model.Results)
+                {
+                    <tr>
+                        <td>@row.LoginDateUtc.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                        <td>@row.LoginId</td>
+                        <td>@row.UserName</td>
+                        <td>@row.Browser</td>
+                        <td>@row.IpAddress</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</section>

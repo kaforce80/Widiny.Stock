@@ -181,6 +181,11 @@ public class AccountController(AdminAccountService adminAccountService) : Contro
             true,
             verificationResult.UsedRecoveryCode ? "Signed in with recovery code" : "Signed in with TOTP",
             GetRemoteIpAddress());
+        await adminAccountService.AddLoginHistoryAsync(
+            pendingLoginId,
+            displayName,
+            GetUserAgent(),
+            GetRemoteIpAddress() ?? string.Empty);
 
         HttpContext.Session.Remove(PendingAdminLoginIdSessionKey);
 
@@ -191,6 +196,39 @@ public class AccountController(AdminAccountService adminAccountService) : Contro
         }
 
         return RedirectToAction("Dashboard", "Home");
+    }
+
+
+    [Authorize]
+    [HttpGet]
+    public async Task<IActionResult> LoginHistory(LoginHistorySearchViewModel model)
+    {
+        if (model.FromDate == default)
+        {
+            model.FromDate = DateTime.UtcNow.Date.AddDays(-7);
+        }
+
+        if (model.ToDate == default)
+        {
+            model.ToDate = DateTime.UtcNow.Date;
+        }
+
+        if (model.FromDate > model.ToDate)
+        {
+            ModelState.AddModelError(string.Empty, "조회 시작일은 종료일보다 클 수 없습니다.");
+            model.Results = [];
+            return View(model);
+        }
+
+        model.Results = await adminAccountService.SearchLoginHistoryAsync(
+            model.FromDate,
+            model.ToDate,
+            model.LoginId,
+            model.UserName,
+            model.Browser,
+            model.IpAddress);
+
+        return View(model);
     }
 
     [Authorize]
@@ -303,4 +341,6 @@ public class AccountController(AdminAccountService adminAccountService) : Contro
     }
 
     private string? GetRemoteIpAddress() => HttpContext.Connection.RemoteIpAddress?.ToString();
+
+    private string GetUserAgent() => Request.Headers.UserAgent.ToString();
 }
