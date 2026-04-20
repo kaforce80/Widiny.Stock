@@ -9,6 +9,7 @@ using System.Security.Claims;
 namespace Widiny.Stock.Web.Controllers;
 
 [AllowAnonymous]
+[AutoValidateAntiforgeryToken]
 public class AccountController(AdminAccountService adminAccountService) : Controller
 {
     private const string PendingAdminLoginIdSessionKey = "PendingAdminLoginId";
@@ -25,7 +26,6 @@ public class AccountController(AdminAccountService adminAccountService) : Contro
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Register(AdminRegisterViewModel model)
     {
         if (!ModelState.IsValid)
@@ -40,6 +40,7 @@ public class AccountController(AdminAccountService adminAccountService) : Contro
             return View(model);
         }
 
+        await adminAccountService.AddAuditLogAsync(model.LoginId, "REGISTER", true, "Admin registered", GetRemoteIpAddress());
         return RedirectToAction(nameof(SetupAuthenticator), new { loginId = model.LoginId });
     }
 
@@ -82,11 +83,11 @@ public class AccountController(AdminAccountService adminAccountService) : Contro
             return RedirectToAction("Dashboard", "Home");
         }
 
-        return View(new AdminLoginViewModel { ReturnUrl = returnUrl });
+        var safeReturnUrl = ValidateReturnUrl(returnUrl);
+        return View(new AdminLoginViewModel { ReturnUrl = safeReturnUrl });
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Login(AdminLoginViewModel model)
     {
         if (!ModelState.IsValid)
@@ -94,15 +95,28 @@ public class AccountController(AdminAccountService adminAccountService) : Contro
             return View(model);
         }
 
-        if (!await adminAccountService.VerifyCredentialsAsync(model.LoginId, model.Password))
+        var result = await adminAccountService.VerifyCredentialsAsync(model.LoginId, model.Password, GetRemoteIpAddress());
+        if (result.IsLockedOut)
+        {
+            ModelState.AddModelError(string.Empty, $"로그인이 잠겼습니다. 잠시 후 다시 시도하세요. ({result.LockoutEndUtc:HH:mm} UTC)");
+            return View(model);
+        }
+
+        if (result.RequiresTwoFactorSetup)
+        {
+            return RedirectToAction(nameof(SetupAuthenticator), new { loginId = model.LoginId });
+        }
+
+        if (!result.IsSuccess)
         {
             ModelState.AddModelError(string.Empty, "로그인 정보가 올바르지 않습니다.");
             return View(model);
         }
 
         HttpContext.Session.SetString(PendingAdminLoginIdSessionKey, model.LoginId);
+        var safeReturnUrl = ValidateReturnUrl(model.ReturnUrl);
 
-        return RedirectToAction(nameof(VerifyAuthenticator), new { model.ReturnUrl });
+        return RedirectToAction(nameof(VerifyAuthenticator), new { returnUrl = safeReturnUrl });
     }
 
     [HttpGet]
@@ -110,21 +124,20 @@ public class AccountController(AdminAccountService adminAccountService) : Contro
     {
         if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString(PendingAdminLoginIdSessionKey)))
         {
-            return RedirectToAction(nameof(Login), new { returnUrl });
+            return RedirectToAction(nameof(Login), new { returnUrl = ValidateReturnUrl(returnUrl) });
         }
 
-        return View(new VerifyAuthenticatorViewModel { ReturnUrl = returnUrl });
+        return View(new VerifyAuthenticatorViewModel { ReturnUrl = ValidateReturnUrl(returnUrl) });
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> VerifyAuthenticator(VerifyAuthenticatorViewModel model)
     {
         var pendingLoginId = HttpContext.Session.GetString(PendingAdminLoginIdSessionKey);
 
         if (string.IsNullOrWhiteSpace(pendingLoginId))
         {
-            return RedirectToAction(nameof(Login), new { model.ReturnUrl });
+            return RedirectToAction(nameof(Login), new { returnUrl = ValidateReturnUrl(model.ReturnUrl) });
         }
 
         if (!ModelState.IsValid)
@@ -132,10 +145,20 @@ public class AccountController(AdminAccountService adminAccountService) : Contro
             return View(model);
         }
 
-        var isTotpValid = await VerifyTotpAsync(pendingLoginId, model.Code);
-        if (!isTotpValid)
+        var verificationResult = await adminAccountService.VerifyTwoFactorOrRecoveryAsync(
+            pendingLoginId,
+            model.Code,
+            GetRemoteIpAddress());
+
+        if (verificationResult.IsLockedOut)
         {
-            ModelState.AddModelError(string.Empty, "Google Authenticator 코드가 유효하지 않습니다.");
+            ModelState.AddModelError(string.Empty, $"인증이 잠겼습니다. 잠시 후 다시 시도하세요. ({verificationResult.LockoutEndUtc:HH:mm} UTC)");
+            return View(model);
+        }
+
+        if (!verificationResult.IsSuccess)
+        {
+            ModelState.AddModelError(string.Empty, "Google Authenticator 코드 또는 복구 코드가 유효하지 않습니다.");
             return View(model);
         }
 
@@ -152,40 +175,132 @@ public class AccountController(AdminAccountService adminAccountService) : Contro
         var principal = new ClaimsPrincipal(identity);
 
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+        await adminAccountService.AddAuditLogAsync(
+            pendingLoginId,
+            "LOGIN_SUCCESS",
+            true,
+            verificationResult.UsedRecoveryCode ? "Signed in with recovery code" : "Signed in with TOTP",
+            GetRemoteIpAddress());
+
         HttpContext.Session.Remove(PendingAdminLoginIdSessionKey);
 
-        if (!string.IsNullOrWhiteSpace(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
+        var safeReturnUrl = ValidateReturnUrl(model.ReturnUrl);
+        if (!string.IsNullOrWhiteSpace(safeReturnUrl))
         {
-            return LocalRedirect(model.ReturnUrl);
+            return LocalRedirect(safeReturnUrl);
         }
 
         return RedirectToAction("Dashboard", "Home");
     }
 
     [Authorize]
+    [HttpGet]
+    public async Task<IActionResult> Security()
+    {
+        var loginId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+        var model = new SecurityManagementViewModel
+        {
+            TwoFactorEnabled = await adminAccountService.IsTwoFactorEnabledAsync(loginId)
+        };
+
+        return View(model);
+    }
+
+    [Authorize]
     [HttpPost]
-    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DisableTwoFactor(SecurityManagementViewModel model)
+    {
+        var loginId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+        if (!await adminAccountService.ConfirmPasswordAsync(loginId, model.DisableTwoFactorPassword))
+        {
+            ModelState.AddModelError(string.Empty, "2차 인증 비활성화를 위해 현재 비밀번호 확인이 필요합니다.");
+            model.TwoFactorEnabled = await adminAccountService.IsTwoFactorEnabledAsync(loginId);
+            return View("Security", model);
+        }
+
+        await adminAccountService.DisableTwoFactorAsync(loginId);
+        TempData["SecurityMessage"] = "2차 인증이 비활성화되었습니다.";
+        return RedirectToAction(nameof(Security));
+    }
+
+    [Authorize]
+    [HttpPost]
+    public async Task<IActionResult> ResetTwoFactor(SecurityManagementViewModel model)
+    {
+        var loginId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+        if (!await adminAccountService.ConfirmPasswordAsync(loginId, model.ResetTwoFactorPassword))
+        {
+            ModelState.AddModelError(string.Empty, "2차 인증 재설정을 위해 현재 비밀번호 확인이 필요합니다.");
+            model.TwoFactorEnabled = await adminAccountService.IsTwoFactorEnabledAsync(loginId);
+            return View("Security", model);
+        }
+
+        await adminAccountService.ResetTwoFactorAsync(loginId);
+        TempData["SecurityMessage"] = "2차 인증 시크릿이 재설정되었습니다. 다시 등록하세요.";
+        return RedirectToAction(nameof(SetupAuthenticator), new { loginId });
+    }
+
+    [Authorize]
+    [HttpPost]
+    public async Task<IActionResult> RegenerateRecoveryCodes(SecurityManagementViewModel model)
+    {
+        var loginId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+        if (!await adminAccountService.ConfirmPasswordAsync(loginId, model.ResetTwoFactorPassword))
+        {
+            ModelState.AddModelError(string.Empty, "복구 코드 재생성을 위해 현재 비밀번호 확인이 필요합니다.");
+            model.TwoFactorEnabled = await adminAccountService.IsTwoFactorEnabledAsync(loginId);
+            return View("Security", model);
+        }
+
+        var recoveryCodes = await adminAccountService.GenerateNewRecoveryCodesAsync(loginId);
+        model.TwoFactorEnabled = await adminAccountService.IsTwoFactorEnabledAsync(loginId);
+        model.RecoveryCodes = recoveryCodes;
+        TempData["SecurityMessage"] = "새 복구 코드가 생성되었습니다. 안전한 장소에 보관하세요.";
+
+        return View("Security", model);
+    }
+
+    [Authorize]
+    [HttpPost]
+    public async Task<IActionResult> ChangePassword(SecurityManagementViewModel model)
+    {
+        var loginId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+        if (!ModelState.IsValid)
+        {
+            model.TwoFactorEnabled = await adminAccountService.IsTwoFactorEnabledAsync(loginId);
+            return View("Security", model);
+        }
+
+        var changed = await adminAccountService.ChangePasswordAsync(loginId, model.CurrentPassword, model.NewPassword);
+        if (!changed)
+        {
+            ModelState.AddModelError(string.Empty, "현재 비밀번호가 올바르지 않습니다.");
+            model.TwoFactorEnabled = await adminAccountService.IsTwoFactorEnabledAsync(loginId);
+            return View("Security", model);
+        }
+
+        TempData["SecurityMessage"] = "비밀번호가 변경되었습니다.";
+        return RedirectToAction(nameof(Security));
+    }
+
+    [Authorize]
+    [HttpPost]
     public async Task<IActionResult> Logout()
     {
+        await adminAccountService.AddAuditLogAsync(User.FindFirstValue(ClaimTypes.NameIdentifier), "LOGOUT", true, "User logged out", GetRemoteIpAddress());
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return RedirectToAction(nameof(Login));
     }
 
-    private async Task<bool> VerifyTotpAsync(string loginId, string code)
+    private string? ValidateReturnUrl(string? returnUrl)
     {
-        var secret = await adminAccountService.GetTotpSecretByLoginIdAsync(loginId);
-        if (string.IsNullOrWhiteSpace(secret))
+        if (string.IsNullOrWhiteSpace(returnUrl))
         {
-            return false;
+            return null;
         }
 
-        try
-        {
-            return TotpUtility.VerifyCode(secret, code);
-        }
-        catch (FormatException)
-        {
-            return false;
-        }
+        return Url.IsLocalUrl(returnUrl) ? returnUrl : null;
     }
+
+    private string? GetRemoteIpAddress() => HttpContext.Connection.RemoteIpAddress?.ToString();
 }

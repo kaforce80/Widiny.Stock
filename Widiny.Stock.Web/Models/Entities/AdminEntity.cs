@@ -34,4 +34,10 @@ public class AdminEntity : AuditableEntity
     [Required]
     [MaxLength(128)]
     public string TotpSecretBase32 { get; set; } = string.Empty;
+
+    public bool TwoFactorEnabled { get; set; } = true;
+
+    public int FailedLoginAttempts { get; set; }
+
+    public DateTime? LockoutEndUtc { get; set; }
 }

@@ -9,14 +9,14 @@
             <img src="~/images/widiny-auth-icon.svg" alt="인증 아이콘" class="auth-title-icon" />
             <span>Google Authenticator 인증</span>
         </h2>
-        <p>앱에 표시되는 6자리 코드를 입력하세요.</p>
+        <p>앱의 6자리 코드 또는 복구 코드를 입력하세요.</p>
 
         <form asp-action="VerifyAuthenticator" method="post" class="auth-form">
             <input type="hidden" asp-for="ReturnUrl" />
             <div asp-validation-summary="ModelOnly" class="validation"></div>
 
-            <label asp-for="Code">인증 코드</label>
-            <input asp-for="Code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" />
+            <label asp-for="Code">인증 코드 / 복구 코드</label>
+            <input asp-for="Code" inputmode="numeric" autocomplete="one-time-code" maxlength="20" />
             <span asp-validation-for="Code" class="validation"></span>
 
             <button type="submit">로그인</button>

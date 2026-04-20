@@ -1,0 +1,77 @@
+@model Widiny.Stock.Web.Models.Auth.SecurityManagementViewModel
+@{
+    ViewData["Title"] = "보안 설정";
+}
+
+<section class="panel security-panel">
+    <h2>계정 보안 설정</h2>
+
+    @if (TempData["SecurityMessage"] is string message)
+    {
+        <div class="success">@message</div>
+    }
+
+    <div asp-validation-summary="ModelOnly" class="validation"></div>
+
+    <div class="security-status">
+        <strong>2차 인증 상태:</strong>
+        @if (Model.TwoFactorEnabled)
+        {
+            <span>활성화</span>
+        }
+        else
+        {
+            <span>비활성화</span>
+        }
+    </div>
+
+    <div class="security-grid">
+        <form asp-action="DisableTwoFactor" method="post" class="security-form">
+            <h3>2차 인증 비활성화</h3>
+            <label asp-for="DisableTwoFactorPassword">현재 비밀번호 확인</label>
+            <input asp-for="DisableTwoFactorPassword" type="password" autocomplete="current-password" />
+            <button type="submit">2차 인증 비활성화</button>
+        </form>
+
+        <form asp-action="ResetTwoFactor" method="post" class="security-form">
+            <h3>2차 인증 재설정</h3>
+            <label asp-for="ResetTwoFactorPassword">현재 비밀번호 확인</label>
+            <input asp-for="ResetTwoFactorPassword" type="password" autocomplete="current-password" />
+            <button type="submit">2차 인증 재설정</button>
+        </form>
+
+        <form asp-action="RegenerateRecoveryCodes" method="post" class="security-form">
+            <h3>복구 코드 재생성</h3>
+            <label asp-for="ResetTwoFactorPassword">현재 비밀번호 확인</label>
+            <input asp-for="ResetTwoFactorPassword" type="password" autocomplete="current-password" />
+            <button type="submit">복구 코드 재생성</button>
+        </form>
+
+        <form asp-action="ChangePassword" method="post" class="security-form">
+            <h3>비밀번호 변경</h3>
+            <label asp-for="CurrentPassword">현재 비밀번호</label>
+            <input asp-for="CurrentPassword" type="password" autocomplete="current-password" />
+
+            <label asp-for="NewPassword">새 비밀번호</label>
+            <input asp-for="NewPassword" type="password" autocomplete="new-password" />
+
+            <label asp-for="ConfirmNewPassword">새 비밀번호 확인</label>
+            <input asp-for="ConfirmNewPassword" type="password" autocomplete="new-password" />
+
+            <button type="submit">비밀번호 변경</button>
+        </form>
+    </div>
+
+    @if (Model.RecoveryCodes.Any())
+    {
+        <div class="recovery-codes">
+            <h3>새 복구 코드 (1회 표시)</h3>
+            <ul>
+                @foreach (var code in Model.RecoveryCodes)
+                {
+                    <li><code>@code</code></li>
+                }
+            </ul>
+        </div>
+    }
+</section>
